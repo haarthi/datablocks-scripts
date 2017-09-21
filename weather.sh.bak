@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/usr/local/bin/jruby -J-Xmx4g lib/weather.rb
