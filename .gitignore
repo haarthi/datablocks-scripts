@@ -5,7 +5,7 @@
 /coverage/
 /doc/
 /pkg/
-/spec/reports/
+/spec/
 /tmp/
 ._*
 
@@ -14,4 +14,6 @@
 
 .publickey.json
 .config.yml
-
+.travis.yml
+.rspec
+.gitignore
