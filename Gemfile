@@ -10,5 +10,8 @@ gem 'aws-sdk'
 
 gem  'json_converter'
 
+gem 'google-cloud-bigquery'
+gem 'google-cloud-storage'
+
 
 # gemspec
