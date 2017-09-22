@@ -17,20 +17,14 @@ require 'aws-sdk'
 
 ##### AWS S3 BUCKET UPLOAD #######
 def upload_to_s3(file_name)
-  puts "upload_to_s3 #{file_name}" 
   bucket_name = 'looker-datablocks'
 
-  puts "before Aws::S3::Resource.new"
   s3 = Aws::S3::Resource.new(region: 'us-east-1')
 
-  puts "before s3_path"
   s3_path = "gsod/gsod/"
 
-  puts "before s3.bucket"
   bucket = s3.bucket(bucket_name)
   
-  puts "before begin"
-
   begin
     puts "Uploading file #{file_name} to S3 bucket #{bucket}."
     s3.bucket(bucket_name).object(s3_path + file_name).upload_file(file_name)
@@ -80,14 +74,18 @@ def upload_to_gcs(file_name)
   end
 end
 
-puts "starting"
 
 # Get Previous date.
-current = DateTime.now.prev_day
+current = DateTime.now.prev_day.to_date
 
-filename = "gsod" + (current.strftime ("%Y-%m-%d"))
 
-puts "new bigquery"
+if ARGV.empty?
+  from_date = current
+else 
+  (!ARGV[0].empty? && (Date.parse(ARGV[0]).is_a?(Date))) ? from_date = Date.parse(ARGV[0]) : from_date = current
+end
+
+
 @bigquery = Google::Cloud::Bigquery.new(
   # project: "haarthi-156616",
   project: "bigquery-public-data",
@@ -95,29 +93,40 @@ puts "new bigquery"
 )
 @dataset = @bigquery.dataset "noaa_gsod"
 
-sql = "
-  SELECT * 
-  FROM `bigquery-public-data.noaa_gsod.gsod2017` 
-  where year = @year and mo = @month and da = @day
-"
-puts "query_job"
-query_job = @dataset.query_job sql, params: { year: current.year.to_s, month: current.strftime("%m").to_s, day: current.strftime("%d").to_s }
 
-puts "query_job.wait_until_done"
-query_job.wait_until_done!
+from_date.to_s.upto(current.strftime("%Y-%m-%d")) do |date|
+  date = Date.parse(date).to_date
+  year = date.year.to_s
 
-begin
-  json_converter= JsonConverter.new
-  csv = json_converter.generate_csv query_job.query_results.to_json
-  File.open("#{filename}", 'w') { |fo| fo.puts csv }
-rescue => e
-    puts "error:" + e.response 
-    # @logger.error(e.response)
-    return
-end 
+  filename = "gsod" + (date.strftime ("%Y-%m-%d"))
 
-upload_to_s3(filename)
-upload_to_gcs(filename)
+  sql = "
+    SELECT * 
+    FROM `bigquery-public-data.noaa_gsod.gsod2017` 
+    where year = @year and mo = @month and da = @day
+  "
 
-puts "file.delete #{filename}"
-File.delete("#{filename}")
+  query_job = @dataset.query_job sql, params: { year: date.year.to_s, month: date.strftime("%m").to_s, day: date.strftime("%d").to_s }
+
+
+  puts "Running Query for: " + date.year.to_s + date.strftime("%m").to_s + date.strftime("%d").to_s
+
+  query_job.wait_until_done!
+
+
+  begin
+    json_converter= JsonConverter.new
+    csv = json_converter.generate_csv query_job.query_results.to_json
+    File.open("#{filename}", 'w') { |fo| fo.puts csv }
+  rescue => e
+      puts "error:" + e.response 
+      # @logger.error(e.response)
+      return
+  end 
+
+  upload_to_s3(filename)
+  upload_to_gcs(filename)
+
+  File.delete("#{filename}")
+
+end
