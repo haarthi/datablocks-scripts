@@ -38,7 +38,7 @@ from_date.to_s.upto(to_date.to_s) do |date|
 
   sql = "
     SELECT * 
-    FROM `bigquery-public-data.noaa_gsod.gsod2017` 
+    FROM `bigquery-public-data.noaa_gsod.gsod#{year}` 
     where year = @year and mo = @month and da = @day
   "
 
