@@ -13,17 +13,15 @@ class BigQuery
   def upload_to_bq(dataset, table, data)
     # puts "upload_to_gcs #{dataset}"
 
-    dataset = @bigquery.dataset dataset
-    table = dataset.table table
-
-    table.insert data
-
     begin
 
       dataset = @bigquery.dataset dataset
       table = dataset.table table
 
       table.insert data
+
+      puts "Inserting Data in BQ for #{table}"
+
 
     rescue => e
       puts "Error Inserting Data in BQ"

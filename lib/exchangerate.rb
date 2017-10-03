@@ -26,8 +26,7 @@ else
 	(ARGV.length == 2 && (Date.parse(ARGV[1]).is_a?(Date))) ? to_date = Date.parse(ARGV[1]) : to_date = from_date
 end
 
-puts "From date" + from_date.to_s
-puts "To Date" + to_date.to_s
+puts "From " + from_date.to_s + " to " + to_date.to_s
 
 from_date.to_s.upto(to_date.to_s) do |date|
 	puts "Exchage Rate for: " + date
@@ -63,15 +62,13 @@ from_date.to_s.upto(to_date.to_s) do |date|
 		return
 	end 
 
-  	#AWS.new.upload_to_s3("exchangerate/#{filename}", filename)
-	#GCS.new.upload_to_gcs("exchangerate/#{filename}", filename)
+  	AWS.new.upload_to_s3("exchangerate/#{filename}", filename)
+	GCS.new.upload_to_gcs("exchangerate/#{filename}", filename)
 	
-	# BigQuery.new.upload_to_bq("", "test", filename)
-
 	BigQuery.new.upload_to_bq("exchangerate", "forex_real", field)
 
 
-	#File.delete("#{filename}")
+	File.delete("#{filename}")
 
 end
 
