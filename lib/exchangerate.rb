@@ -34,14 +34,13 @@ from_date.to_s.upto(to_date.to_s) do |date|
 	filename = "exchangerate-" + (date.to_s)
 
 	@url = 'https://api.fixer.io/' + date.to_s
-
+	puts @url
 	begin
 		response = RestClient.get(@url)
 	rescue => e
 		e.response
 		return
 	end
-	
 
 	row = JSON.parse(response.body)
 	field = {
@@ -55,7 +54,6 @@ from_date.to_s.upto(to_date.to_s) do |date|
 		field["#{key}"] = "#{value}"
 	end
 
-
 	begin
 		json_converter= JsonConverter.new
 		csv = json_converter.generate_csv field.to_json
@@ -65,14 +63,17 @@ from_date.to_s.upto(to_date.to_s) do |date|
 		return
 	end 
 
-  	AWS.new.upload_to_s3("exchangerate/#{filename}", filename)
-	GCS.new.upload_to_gcs("exchangerate/#{filename}", filename)
+  	#AWS.new.upload_to_s3("exchangerate/#{filename}", filename)
+	#GCS.new.upload_to_gcs("exchangerate/#{filename}", filename)
 	
-	File.delete("#{filename}")
+	# BigQuery.new.upload_to_bq("", "test", filename)
+
+	BigQuery.new.upload_to_bq("exchangerate", "forex_real", field)
 
 
+	#File.delete("#{filename}")
 
 end
 
-# BigQuery.new.upload_to_gcs("test", "exchangerate-2017-09-01")
+
 

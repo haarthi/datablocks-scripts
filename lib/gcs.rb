@@ -26,10 +26,10 @@ class GCS
       sns = Aws::SNS::Resource.new(region: 'us-east-1')
       topic = sns.topic('arn:aws:sns:us-east-1:734261250617:datablock-etl-notifications')
 
-      puts "Weather ETL for datablocks failed to load into GS"    
+      puts "#{file_name} for datablocks failed to load into GCS"    
 
       topic.publish({
-                 subject: 'Weather ETL for datablocks failed to load into GS',
+                 subject: '#{file_name} for datablocks failed to load into GCS',
                  message: 'The script and the logs are on partneretl running on a cronjob.'
       })
     end

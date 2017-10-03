@@ -15,13 +15,13 @@ class AWS
       s3.bucket(bucket_name).object(s3_path + file_name).upload_file(file_name)
 
       rescue Aws::S3::Errors::ServiceError
-        puts "Weather ETL for datablocks failed to load into S3"
+        puts "#{file_name} for datablocks failed to load into S3"
         # rescues all errors returned by Amazon Simple Storage Service
         sns = Aws::SNS::Resource.new(region: 'us-east-1')
         topic = sns.topic('arn:aws:sns:us-east-1:734261250617:datablock-etl-notifications')
 
         topic.publish({
-                 subject: 'Weather ETL for datablocks failed to load into S3',
+                 subject: '#{s3_path} for datablocks failed to load into S3',
                  message: 'The script and the logs are on partneretl running on a cronjob.'
         })
     end
