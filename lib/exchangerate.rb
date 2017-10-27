@@ -62,8 +62,8 @@ from_date.to_s.upto(to_date.to_s) do |date|
 		return
 	end 
 
-  	AWS.new.upload_to_s3("exchangerate/#{filename}", filename)
-	GCS.new.upload_to_gcs("exchangerate/#{filename}", filename)
+  	AWS.new.upload_to_s3("exchangerate/forex_real/#{filename}", filename)
+	GCS.new.upload_to_gcs("exchangerate/forex_real/#{filename}", filename)
 	
 	BigQuery.new.upload_to_bq("exchangerate", "forex_real", field)
 
