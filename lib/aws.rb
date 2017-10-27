@@ -12,7 +12,7 @@ class AWS
     
     begin
       puts "Uploading file #{file_name} to S3 bucket #{bucket}."
-      s3.bucket(bucket_name).object(s3_path + file_name).upload_file(file_name)
+      s3.bucket(bucket_name).object(s3_path).upload_file(file_name)
 
       rescue Aws::S3::Errors::ServiceError
         puts "#{file_name} for datablocks failed to load into S3"
