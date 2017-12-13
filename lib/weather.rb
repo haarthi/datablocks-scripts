@@ -42,21 +42,29 @@ from_date.to_s.upto(to_date.to_s) do |date|
     where year = @year and mo = @month and da = @day
   "
 
-  query_job = @dataset.query_job sql, params: { year: date.year.to_s, month: date.strftime("%m").to_s, day: date.strftime("%d").to_s }
 
+  query_job = @dataset.query_job sql, params: { year: date.year.to_s, month: date.strftime("%m").to_s, day: date.strftime("%d").to_s }
 
   puts "Running Query for: " + date.year.to_s + date.strftime("%m").to_s + date.strftime("%d").to_s
 
   query_job.wait_until_done!
 
 
+
   begin
-    json_converter= JsonConverter.new
-    csv = json_converter.generate_csv query_job.query_results.to_json
-    File.open("#{filename}", 'w') { |fo| fo.puts csv }
+    # json_converter= JsonConverter.new
+    # csv = json_converter.generate_csv(my_json, headers = true, nil_substitute = 'Nil')
+
+    csv_string = CSV.generate do |csv|
+      JSON.parse(query_job.query_results.to_json).each do |hash|
+        csv << hash.values
+      end
+    end
+
+    File.open("#{filename}", 'w') { |fo| fo.puts csv_string }
   rescue => e
       puts "error:" + e.response 
-      # @logger.error(e.response)
+      @logger.error(e.response)
       return
   end 
 
