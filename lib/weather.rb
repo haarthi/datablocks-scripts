@@ -48,9 +48,6 @@ from_date.to_s.upto(to_date.to_s) do |date|
   puts "Running Query for: " + date.year.to_s + date.strftime("%m").to_s + date.strftime("%d").to_s
 
   query_job.wait_until_done!
-
-
-
   begin
     # json_converter= JsonConverter.new
     # csv = json_converter.generate_csv(my_json, headers = true, nil_substitute = 'Nil')
@@ -68,7 +65,7 @@ from_date.to_s.upto(to_date.to_s) do |date|
       return
   end 
 
-  AWS.new.upload_to_s3("gsod/gsod/", filename)
+  AWS.new.upload_to_s3("gsod/gsod/#{year}/#{filename}", filename)
   GCS.new.upload_to_gcs("gsod/#{year}/#{filename}", filename)
 
   File.delete("#{filename}")

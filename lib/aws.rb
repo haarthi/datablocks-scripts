@@ -11,7 +11,7 @@ class AWS
     bucket = s3.bucket(bucket_name)
     
     begin
-      puts "Uploading file #{file_name} to S3 bucket #{bucket}."
+      puts "Uploading file #{file_name} to S3 bucket #{s3_path} + #{bucket}."
       s3.bucket(bucket_name).object(s3_path).upload_file(file_name)
 
       rescue Aws::S3::Errors::ServiceError
