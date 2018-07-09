@@ -14,5 +14,4 @@ gem 'rest-client'
 gem 'google-cloud-bigquery'
 gem 'google-cloud-storage'
 
-
 # gemspec

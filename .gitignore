@@ -11,7 +11,7 @@
 
 # rspec failure tracking
 .rspec_status
-
+config/application.yml
 lookerpublickey.json
 publickey.json
 .config.yml

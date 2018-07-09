@@ -15,6 +15,7 @@ require_relative 'gcs'
 require_relative 'bq'
 
 
+@config = YAML.load_file('../config/application.yml')
 
 current = DateTime.now.prev_day.to_date
 
@@ -32,8 +33,9 @@ from_date.to_s.upto(to_date.to_s) do |date|
 	puts "Exchage Rate for: " + date
 	filename = "exchangerate-" + (date.to_s)
 
-	@url = 'https://api.fixer.io/' + date.to_s
+	@url = @config['EXCHANGEURL'].to_s + date.to_s + "?access_key=" + @config['EXCHANGEURL_PASSWORD'].to_s
 	puts @url
+
 	begin
 		response = RestClient.get(@url)
 	rescue => e
@@ -42,6 +44,7 @@ from_date.to_s.upto(to_date.to_s) do |date|
 	end
 
 	row = JSON.parse(response.body)
+
 	field = {
       "exchange_date" => row["date"],
       "base_currency" => row["base"],
@@ -53,6 +56,8 @@ from_date.to_s.upto(to_date.to_s) do |date|
 		field["#{key}"] = "#{value}"
 	end
 
+	puts field.to_json
+
 	begin
 		json_converter= JsonConverter.new
 		csv = json_converter.generate_csv field.to_json
@@ -62,7 +67,7 @@ from_date.to_s.upto(to_date.to_s) do |date|
 		return
 	end 
 
-  	AWS.new.upload_to_s3("exchangerate/forex_real/#{filename}", filename)
+  	# AWS.new.upload_to_s3("exchangerate/forex_real/#{filename}", filename)
 	GCS.new.upload_to_gcs("exchangerate/forex_real/#{filename}", filename)
 	
 	BigQuery.new.upload_to_bq("exchangerate", "forex_real", field)
